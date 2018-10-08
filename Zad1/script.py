@@ -5,13 +5,15 @@ print(matrix)
 
 def minimax():
     row_min = [] 
-
-    for i, row in enumerate(matrix):
-        row_min.append(min(row)) #for every row we find min value and add it to row_min array
-
-    max_val = max(row_min) #find max value from min values in rows
-
     best_decisions = [] 
+
+     # find min value for every row and add it to row_min array
+    for i, row in enumerate(matrix):
+        row_min.append(min(row))
+
+    #find max value from min values in rows
+    max_val = max(row_min) 
+
     for i, row in enumerate(matrix):
         if (min(row) == max_val):
             best_decisions.append(i + 1) 
@@ -20,13 +22,15 @@ def minimax():
 
 def maxmax():
     row_max = [] 
-
-    for i, row in enumerate(matrix):
-        row_max.append(max(row)) #for every row we find max value and add it to row_max array
-
-    max_val = max(row_max) #find max value from max values in rows
-
     best_decisions = [] 
+
+    # find max value for every row and add it to row_max array
+    for i, row in enumerate(matrix):
+        row_max.append(max(row)) 
+
+    # find max value from max values in rows
+    max_val = max(row_max) 
+
     for i, row in enumerate(matrix):
         if (max(row) == max_val):
             best_decisions.append(i + 1)
@@ -54,12 +58,15 @@ def check_indicator_value(indicator):
 def hurwicz():
     indicator = get_caution_indicator()
     row_indicators = []
-    for row in matrix:
-        row_indicators.append(count_row_indicator(min(row), max(row), indicator)) #count caution indicator for every row
-
-    max_val = max(row_indicators) #find max value from rows indicators
-
     best_decisions = []
+
+    #count caution indicator for every row
+    for row in matrix:
+        row_indicators.append(count_row_indicator(min(row), max(row), indicator)) 
+
+    # find max value from rows indicators
+    max_val = max(row_indicators) 
+
     for i, val in enumerate(row_indicators):
         if (val == max_val):
             best_decisions.append(i + 1)
@@ -69,6 +76,9 @@ def hurwicz():
 def bayes_laplace():
     probabilities = np.loadtxt('probabilities.txt')
     row_values = []
+    best_decisions = []
+
+    # count value for every row using given probabilities
     for row in matrix:
         row_value = 0
         for i, col_val in enumerate(row):
@@ -77,14 +87,47 @@ def bayes_laplace():
     
     max_val = max(row_values)
 
-    best_decisions = []
+    # find decisions with max value
     for i, val in enumerate(row_values):
         if (val == max_val):
             best_decisions.append(i + 1)
 
     print('Wynik kryterium Bayesa-Laplace: ' + str(max_val) + ', najlepsza decyzja: ' + str(best_decisions))
-    
+
+def savage():
+    max_columns = [0] * len(matrix[0])
+    relative_losses = []
+    max_relative_losses = []
+    best_decisions = []
+
+    # find max values in columns
+    for row in matrix:
+        for i, col_val in enumerate(row):
+            if (col_val > max_columns[i]):
+                max_columns[i] = col_val
+
+    # count relative loss for every element of matrix
+    for i, row in enumerate(matrix):
+        relative_losses.append([])
+        for j, col_val in enumerate(row):
+            relative_losses[i].append(max_columns[j] - col_val)
+
+    # find max relative loss in every row
+    for row in relative_losses:
+        max_relative_losses.append(max(row))
+
+    # find min loss from max relative losses
+    min_loss = min(max_relative_losses)
+
+    # find decisions with min loss
+    for i, val in enumerate(max_relative_losses):
+        if (val == min_loss):
+            best_decisions.append(i + 1)
+
+    print('Wynik kryterium Savage: ' + str(min_loss) + ', najlepsza decyzja: ' + str(best_decisions))
+ 
 minimax()
 maxmax()
 hurwicz()
 bayes_laplace()
+savage()
