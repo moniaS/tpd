@@ -73,7 +73,7 @@ def hurwicz():
     
     print('Wynik kryterium Hurwicza dla współczynnika ostrożności ' + str(indicator) + ': ' + str(max_val) + ', najlepsza decyzja: ' + str(best_decisions))
 
-def bayes_laplace():
+def bayes_laplace_different_probabilities():
     probabilities = np.loadtxt('probabilities.txt')
     row_values = []
     best_decisions = []
@@ -92,7 +92,24 @@ def bayes_laplace():
         if (val == max_val):
             best_decisions.append(i + 1)
 
-    print('Wynik kryterium Bayesa-Laplace: ' + str(max_val) + ', najlepsza decyzja: ' + str(best_decisions))
+    print('Wynik kryterium Bayesa-Laplace z różnymi prawdopodobieństwami: ' + str(max_val) + ', najlepsza decyzja: ' + str(best_decisions))
+
+def bayes_laplace_same_probabilities():
+    row_values = []
+    best_decisions = []
+
+    # count value for every row using given probabilities
+    for row in matrix:
+        row_values.append(sum(row)/len(row))
+    
+    max_val = max(row_values)
+
+    # find decisions with max value
+    for i, val in enumerate(row_values):
+        if (val == max_val):
+            best_decisions.append(i + 1)
+
+    print('Wynik kryterium Bayesa-Laplace z jednakowymi prawdopodobieństwami: ' + str(max_val) + ', najlepsza decyzja: ' + str(best_decisions))
 
 def savage():
     max_columns = [0] * len(matrix[0])
@@ -129,5 +146,6 @@ def savage():
 minimax()
 maxmax()
 hurwicz()
-bayes_laplace()
+bayes_laplace_different_probabilities()
+bayes_laplace_same_probabilities()
 savage()
