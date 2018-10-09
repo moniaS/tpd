@@ -112,22 +112,22 @@ def bayes_laplace_same_probabilities():
     print('Wynik kryterium Bayesa-Laplace z jednakowymi prawdopodobieństwami: ' + str(max_val) + ', najlepsza decyzja: ' + str(best_decisions))
 
 def savage():
-    max_columns = [0] * len(matrix[0])
+    max_columns = [100] * len(matrix[0])
     relative_losses = []
     max_relative_losses = []
     best_decisions = []
-
+    print(max_columns)
     # find max values in columns
     for row in matrix:
         for i, col_val in enumerate(row):
-            if (col_val > max_columns[i]):
+            if (col_val < max_columns[i]):
                 max_columns[i] = col_val
 
     # count relative loss for every element of matrix
     for i, row in enumerate(matrix):
         relative_losses.append([])
         for j, col_val in enumerate(row):
-            relative_losses[i].append(max_columns[j] - col_val)
+            relative_losses[i].append(col_val - max_columns[j])
 
     # find max relative loss in every row
     for row in relative_losses:
