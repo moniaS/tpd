@@ -116,7 +116,7 @@ def savage():
     relative_losses = []
     max_relative_losses = []
     best_decisions = []
-    print(max_columns)
+    
     # find max values in columns
     for row in matrix:
         for i, col_val in enumerate(row):
