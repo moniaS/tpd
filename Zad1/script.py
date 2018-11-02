@@ -7,11 +7,11 @@ def minimax():
     row_min = [] 
     best_decisions = [] 
 
-     # find min value for every row and add it to row_min array
-    for i, row in enumerate(matrix):
+    # find min value for every row and add it to row_min array
+    for row in matrix:
         row_min.append(min(row))
 
-    #find max value from min values in rows
+    # find max value from min values in rows
     max_val = max(row_min) 
 
     for i, row in enumerate(matrix):
@@ -25,7 +25,7 @@ def maxmax():
     best_decisions = [] 
 
     # find max value for every row and add it to row_max array
-    for i, row in enumerate(matrix):
+    for row in matrix:
         row_max.append(max(row)) 
 
     # find max value from max values in rows
@@ -60,7 +60,7 @@ def hurwicz():
     row_indicators = []
     best_decisions = []
 
-    #count caution indicator for every row
+    # count caution indicator for every row
     for row in matrix:
         row_indicators.append(count_row_indicator(min(row), max(row), indicator)) 
 
@@ -98,7 +98,6 @@ def bayes_laplace_same_probabilities():
     row_values = []
     best_decisions = []
 
-    # count value for every row using given probabilities
     for row in matrix:
         row_values.append(sum(row)/len(row))
     
@@ -127,7 +126,7 @@ def savage():
     for i, row in enumerate(matrix):
         relative_losses.append([])
         for j, col_val in enumerate(row):
-            relative_losses[i].append(col_val - max_columns[j])
+            relative_losses[i].append(max_columns[j] - col_val)
 
     # find max relative loss in every row
     for row in relative_losses:
