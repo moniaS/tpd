@@ -7,11 +7,7 @@ matrix = numpy.loadtxt('wariant5.txt')
 optimizedMatrix = matrix
 print("Wczytana macierz:")
 print(matrix)
-
-class MinmaxInfo:
-    gameValue = 0
-    rowNumber = 0
-    columnNumber = 0
+optimizedMatrix = matrix
 
 def minMaxForRows():
     row_min = []
@@ -31,7 +27,7 @@ def minMaxForRows():
     #check value position in columns
     j = row_min_column_index_info[i[0]]
 
-    print("Wartość maxmin to %d, wiersz %d, kolumna %d" % (max_val, i[0]+1, j+1))
+    print("Maxmin: %d, wiersz: %d, kolumna: %d" % (max_val, i[0]+1, j+1))
     arrayInfo = [max_val, i[0]+1, j+1]
     return arrayInfo
 
@@ -53,7 +49,7 @@ def maxMinForColumns():
     #check value position in rows
     j, = numpy.where(column_max == minVal)
     i = rowMaxIdxInfo[j[0]]
-    print("Wartość minmax to %d z wiersza %d, kolumny %d" % (minVal, i+1, j[0]+1))
+    print("Minmax: %d, wiersz: %d, kolumna: %d" % (minVal, i+1, j[0]+1))
     arrayInfo = [minVal, i+1, j[0]+1]
     return arrayInfo
 
@@ -164,42 +160,28 @@ def checkMinValueInMatrix(matrix):
 
 def simplexX(temp_matrix):
     c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku wspolczynniki c to same
-    print(c)
     A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
-    #print(A)
     b = numpy.full((len(temp_matrix)), -1, dtype=int) #po prawej stronie nierownosci mamy -1 bo podzielilismy przez v i zmienilismy znak
-    #print(b)
     bounds = (0, None) #przyjmujemy, ze x1, x2 itp musi byc wieksze rowne 0
     result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow x', ktora w naszym przypadku to wartosci x1', x2' itp
-    print(result) 
     v = 1 / sum(result.x) #obliczamy wygrana v
-    print("Wygrana wynosi %d" % v)
     x = []
     for val in result.x.tolist():
         x.append(v * val) #obliczamy wartosci x1, x2 itp mnozac x1', x2' itp przez v (wygrana)
-    print("Współczynniki dla strategii dla wierszy:")
-    print(x)
+    print('======= Gracz A ======= \nWektor X: ' + str(x) + ', wygrana: ' + str(v)) 
 
 def simplexY(temp_matrix):
     c = numpy.full((len(temp_matrix[0])), -1, dtype=int) #c = c1 * y1 + c2 * y2 itd, w naszym przypadku wspolczynniki c to same -1
-    # print(c)
     A = temp_matrix
-    # print(A)
     b = numpy.full((len(temp_matrix)), 1, dtype=int) #po prawej stronie nierownosci mamy 1 bo podzielilismy przez v
-    # print(b)
     bounds = (0, None) #przyjmujemy, ze y1, y2 itp musi byc wieksze rowne 0
     result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow y', ktora w naszym przypadku to wartosci y1', y2' itp
-    # print(result) 
     v = 1 / sum(result.x) #obliczamy wygrana v
-    print(v)
     y = []
     for val in result.x.tolist():
         y.append(v * val) #obliczamy wartosci y1, y2 itp mnozac y1', y2' itp przez v (wygrana)
-    print("Współczynniki dla strategii dla kolumn:")
-    print(y) 
+    print('======= Gracz B ======= \nWektor Y: ' + str(y) + ', wygrana: ' + str(v))
 
-minMaxForRows()
-maxMinForColumns()
 if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
     quit()
 else:
