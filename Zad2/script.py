@@ -4,14 +4,33 @@ from scipy.optimize import linprog
 arrayRowsInfo = []
 arrayColumnsInfo = []
 matrix = numpy.loadtxt('wariant1.txt')
-optimizedMatrix = matrix
-print("Wczytana macierz:")
-print(matrix)
 
-class MinmaxInfo:
-    gameValue = 0
-    rowNumber = 0
-    columnNumber = 0
+def main():
+    #show matrix
+    print("Wczytana macierz:")
+    print(matrix)
+    optimizedMatrix = matrix
+
+    #delete dominated rows and columns
+    changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
+    if type(changedMatrix) is numpy.ndarray:
+        optimizedMatrix = changedMatrix
+    else:
+        print("Brak zdominowanych wierszy badz kolumn")
+    while(type(changedMatrix) is numpy.ndarray):
+        changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
+        if type(changedMatrix) is numpy.ndarray:
+            optimizedMatrix = changedMatrix
+    print("Macierz po optymalizacji")
+    print(optimizedMatrix)
+
+    #find solution
+    if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
+        print("Koniec")
+    else:
+        print("Brak punktu siodłowego. Aby znaleźć rozwiązanie należey skorzystać z programowania liniowego.")
+        simplexX(numpy.transpose(matrix))
+        simplexY(matrix)
 
 def minMaxForRows():
     row_min = []
@@ -31,7 +50,7 @@ def minMaxForRows():
     #check value position in columns
     j = row_min_column_index_info[i[0]]
 
-    print("Maxmin value is %d from row %d, column %d" % (max_val, i[0]+1, j+1))
+    print("Maxmin: %d, wiersz: %d, kolumna: %d" % (max_val, i[0]+1, j+1))
     arrayInfo = [max_val, i[0]+1, j+1]
     return arrayInfo
 
@@ -53,7 +72,7 @@ def maxMinForColumns():
     #check value position in rows
     j, = numpy.where(column_max == minVal)
     i = rowMaxIdxInfo[j[0]]
-    print("Minmax value is %d from row %d, column %d" % (minVal, i+1, j[0]+1))
+    print("Minmax: %d, wiersz: %d, kolumna: %d" % (minVal, i+1, j[0]+1))
     arrayInfo = [minVal, i+1, j[0]+1]
     return arrayInfo
 
@@ -114,10 +133,6 @@ def findDominatedColumns(matrix):
 
 # return 0 if none of vectors is entirely smaller, return 1 if first is smaller, return 2 if second is smaller
 def compareTwoVectors(array1, array2):
-    #print("Comparing...")
-    #print(array1)
-    #print(array2)
-    #print("--------------")
     arraySize = array1.size
     numberOfSmallerOrEqualElementsInArray1 = 0
     numberOfSmallerOrEqualElementsInArray2 = 0
@@ -133,61 +148,29 @@ def compareTwoVectors(array1, array2):
     else:
         return 0
 
-#delete dominated rows and columns
-changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
-if type(changedMatrix) is numpy.ndarray:
-    optimizedMatrix = changedMatrix
-else:
-    print("Brak zdominowanych wierszy badz kolumn")
-while(type(changedMatrix) is numpy.ndarray):
-    changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
-    if type(changedMatrix) is numpy.ndarray:
-        optimizedMatrix = changedMatrix
-print("Macierz po optymalizacji")
-print(optimizedMatrix)
-
 def simplexX(temp_matrix):
     c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku wspolczynniki c to same
-    # print(c)
     A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
-    # print(A)
     b = numpy.full((len(temp_matrix)), -1, dtype=int) #po prawej stronie nierownosci mamy -1 bo podzielilismy przez v i zmienilismy znak
-    # print(b)
     bounds = (0, None) #przyjmujemy, ze x1, x2 itp musi byc wieksze rowne 0
     result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow x', ktora w naszym przypadku to wartosci x1', x2' itp
-    # print(res) 
     v = 1 / sum(result.x) #obliczamy wygrana v
-    print(v)
     x = []
     for val in result.x.tolist():
         x.append(v * val) #obliczamy wartosci x1, x2 itp mnozac x1', x2' itp przez v (wygrana)
-    print(x) 
+    print('======= Gracz A ======= \nWektor X: ' + str(x) + ', wygrana: ' + str(v)) 
 
 def simplexY(temp_matrix):
     c = numpy.full((len(temp_matrix[0])), -1, dtype=int) #c = c1 * y1 + c2 * y2 itd, w naszym przypadku wspolczynniki c to same -1
-    # print(c)
     A = temp_matrix
-    # print(A)
     b = numpy.full((len(temp_matrix)), 1, dtype=int) #po prawej stronie nierownosci mamy 1 bo podzielilismy przez v
-    # print(b)
     bounds = (0, None) #przyjmujemy, ze y1, y2 itp musi byc wieksze rowne 0
     result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow y', ktora w naszym przypadku to wartosci y1', y2' itp
-    # print(result) 
     v = 1 / sum(result.x) #obliczamy wygrana v
-    print(v)
     y = []
     for val in result.x.tolist():
         y.append(v * val) #obliczamy wartosci y1, y2 itp mnozac y1', y2' itp przez v (wygrana)
-    print(y) 
+    print('======= Gracz B ======= \nWektor Y: ' + str(y) + ', wygrana: ' + str(v)) 
 
-simplexX(numpy.transpose(matrix))
-simplexY(matrix)
-
-#minMaxForRows()
-#maxMinForColumns()
-#if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
-#    print("Koniec")
-#    quit()
-#else:
-#    print("Brak punktu siodłowego. Aby znaleźć rozwiązanie należey skorzystać z programowania liniowego.")
-#if (arrayRowsInfo[0] == arrayColumnsInfo[0])
+if __name__ == '__main__':
+  main()
