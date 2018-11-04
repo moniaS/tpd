@@ -146,7 +146,7 @@ def prepareMatrixWithPositiveNumbers():
     if min < 0:
         for i in range(optimizedMatrix.shape[0]):
             for j in range(optimizedMatrix.shape[1]):
-                optimizedMatrix[i][j] -= min
+                optimizedMatrix[i][j] += abs(min)
         return min
     return 0
 
@@ -158,7 +158,7 @@ def checkMinValueInMatrix(matrix):
                 min = matrix[i][j]
     return min
 
-def simplexX(temp_matrix):
+def simplexX(temp_matrix, min):
     c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku wspolczynniki c to same
     A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
     b = numpy.full((len(temp_matrix)), -1, dtype=int) #po prawej stronie nierownosci mamy -1 bo podzielilismy przez v i zmienilismy znak
@@ -168,9 +168,10 @@ def simplexX(temp_matrix):
     x = []
     for val in result.x.tolist():
         x.append(v * val) #obliczamy wartosci x1, x2 itp mnozac x1', x2' itp przez v (wygrana)
-    print('======= Gracz A ======= \nWektor X: ' + str(x) + ', wygrana: ' + str(v)) 
+    v -= abs(min) #odejmujemy od wygranej wartosc bezwzgledna najmniejszego elementu tabeli
+    print('======= Gracz A ======= \Współczynniki X: ' + str(x) + ', wygrana: ' + str(v)) 
 
-def simplexY(temp_matrix):
+def simplexY(temp_matrix, min):
     c = numpy.full((len(temp_matrix[0])), -1, dtype=int) #c = c1 * y1 + c2 * y2 itd, w naszym przypadku wspolczynniki c to same -1
     A = temp_matrix
     b = numpy.full((len(temp_matrix)), 1, dtype=int) #po prawej stronie nierownosci mamy 1 bo podzielilismy przez v
@@ -180,7 +181,8 @@ def simplexY(temp_matrix):
     y = []
     for val in result.x.tolist():
         y.append(v * val) #obliczamy wartosci y1, y2 itp mnozac y1', y2' itp przez v (wygrana)
-    print('======= Gracz B ======= \nWektor Y: ' + str(y) + ', wygrana: ' + str(v))
+    v -= abs(min) #odejmujemy od wygranej wartosc bezwzgledna najmniejszego elementu tabeli
+    print('======= Gracz B ======= \Współczynniki Y: ' + str(y) + ', wygrana: ' + str(v))
 
 if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
     quit()
@@ -190,6 +192,6 @@ else:
 optimizedMatrix = checkForDominatedXY(optimizedMatrix)
 
 minValInMatrix = prepareMatrixWithPositiveNumbers()
-
-simplexX(numpy.transpose(optimizedMatrix))
-simplexY(optimizedMatrix)
+print(optimizedMatrix)
+simplexX(numpy.transpose(optimizedMatrix), minValInMatrix)
+simplexY(optimizedMatrix, minValInMatrix)
