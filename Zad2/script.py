@@ -3,7 +3,7 @@ from scipy.optimize import linprog
 
 arrayRowsInfo = []
 arrayColumnsInfo = []
-matrix = numpy.loadtxt('wariant1.txt')
+matrix = numpy.loadtxt('wariant5.txt')
 optimizedMatrix = matrix
 print("Wczytana macierz:")
 print(matrix)
@@ -31,7 +31,7 @@ def minMaxForRows():
     #check value position in columns
     j = row_min_column_index_info[i[0]]
 
-    print("Maxmin value is %d from row %d, column %d" % (max_val, i[0]+1, j+1))
+    print("Wartość maxmin to %d, wiersz %d, kolumna %d" % (max_val, i[0]+1, j+1))
     arrayInfo = [max_val, i[0]+1, j+1]
     return arrayInfo
 
@@ -53,7 +53,7 @@ def maxMinForColumns():
     #check value position in rows
     j, = numpy.where(column_max == minVal)
     i = rowMaxIdxInfo[j[0]]
-    print("Minmax value is %d from row %d, column %d" % (minVal, i+1, j[0]+1))
+    print("Wartość minmax to %d z wiersza %d, kolumny %d" % (minVal, i+1, j[0]+1))
     arrayInfo = [minVal, i+1, j[0]+1]
     return arrayInfo
 
@@ -114,10 +114,6 @@ def findDominatedColumns(matrix):
 
 # return 0 if none of vectors is entirely smaller, return 1 if first is smaller, return 2 if second is smaller
 def compareTwoVectors(array1, array2):
-    #print("Comparing...")
-    #print(array1)
-    #print(array2)
-    #print("--------------")
     arraySize = array1.size
     numberOfSmallerOrEqualElementsInArray1 = 0
     numberOfSmallerOrEqualElementsInArray2 = 0
@@ -132,7 +128,6 @@ def compareTwoVectors(array1, array2):
         return 2
     else:
         return 0
-
 
 def checkForDominatedXY(optimizedMatrix):
     #delete dominated rows and columns
@@ -149,22 +144,41 @@ def checkForDominatedXY(optimizedMatrix):
     print(optimizedMatrix)
     return optimizedMatrix
 
+def prepareMatrixWithPositiveNumbers():
+    global optimizedMatrix
+    min = checkMinValueInMatrix(optimizedMatrix)
+    if min < 0:
+        for i in range(optimizedMatrix.shape[0]):
+            for j in range(optimizedMatrix.shape[1]):
+                optimizedMatrix[i][j] -= min
+        return min
+    return 0
+
+def checkMinValueInMatrix(matrix):
+    min = 0
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if matrix[i][j] < min:
+                min = matrix[i][j]
+    return min
+
 def simplexX(temp_matrix):
     c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku wspolczynniki c to same
-    # print(c)
+    print(c)
     A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
-    # print(A)
+    #print(A)
     b = numpy.full((len(temp_matrix)), -1, dtype=int) #po prawej stronie nierownosci mamy -1 bo podzielilismy przez v i zmienilismy znak
-    # print(b)
+    #print(b)
     bounds = (0, None) #przyjmujemy, ze x1, x2 itp musi byc wieksze rowne 0
     result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow x', ktora w naszym przypadku to wartosci x1', x2' itp
-    # print(res) 
+    print(result) 
     v = 1 / sum(result.x) #obliczamy wygrana v
-    print(v)
+    print("Wygrana wynosi %d" % v)
     x = []
     for val in result.x.tolist():
         x.append(v * val) #obliczamy wartosci x1, x2 itp mnozac x1', x2' itp przez v (wygrana)
-    print(x) 
+    print("Współczynniki dla strategii dla wierszy:")
+    print(x)
 
 def simplexY(temp_matrix):
     c = numpy.full((len(temp_matrix[0])), -1, dtype=int) #c = c1 * y1 + c2 * y2 itd, w naszym przypadku wspolczynniki c to same -1
@@ -181,6 +195,7 @@ def simplexY(temp_matrix):
     y = []
     for val in result.x.tolist():
         y.append(v * val) #obliczamy wartosci y1, y2 itp mnozac y1', y2' itp przez v (wygrana)
+    print("Współczynniki dla strategii dla kolumn:")
     print(y) 
 
 minMaxForRows()
@@ -189,9 +204,10 @@ if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
     quit()
 else:
     print("Brak punktu siodłowego. Aby znaleźć rozwiązanie należey skorzystać z programowania liniowego.")
-#if (arrayRowsInfo[0] == arrayColumnsInfo[0])
 
-checkForDominatedXY(optimizedMatrix)
+optimizedMatrix = checkForDominatedXY(optimizedMatrix)
 
-simplexX(numpy.transpose(matrix))
-simplexY(matrix)
+minValInMatrix = prepareMatrixWithPositiveNumbers()
+
+simplexX(numpy.transpose(optimizedMatrix))
+simplexY(optimizedMatrix)
