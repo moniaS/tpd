@@ -1,4 +1,5 @@
 import numpy as numpy
+from scipy.optimize import linprog
 
 arrayRowsInfo = []
 arrayColumnsInfo = []
@@ -130,6 +131,37 @@ def compareTwoVectors(array1, array2):
         return 2
     else:
         return 0
+findDominatedRowsAndColumns(matrix)
+
+def simplex(temp_matrix):
+    c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku to same 1
+    # print(c)
+    A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
+    # print(A)
+    b = numpy.full((len(temp_matrix)), -1, dtype=int) #po prawej stronie nierownosci mamy -1 bo podzielilismy przez v i zmienilismy znak
+    # print(b)
+    bounds = (0, None) #przyjmujemy, ze x1, x2 itp musi byc wieksze rowne 0
+    res = linprog(c, A, b, bounds=bounds, method='simplex')
+    # print(res) #w rezultacie otrzymujemy tablice wynikow x, ktora w naszym przypadku to wspolczynniki x1', x2' itp
+    v = 1 / sum(res.x) #obliczamy wygrana v
+    print(v)
+    x = []
+    for val in res.x.tolist():
+        x.append(v * val) #obliczamy wartosci wspolczynnikow x1, x2, 
+    print(x) 
+
+simplex(numpy.transpose(matrix))
+
+# c = [1, 1]
+# A = [[-5, -2], [0, -4], [-1, -3]]
+# b = [-1, -1, -1]
+# x1_bnds = (0, None)
+# x2_bnds = (0, None)
+
+# res = linprog(c, A, b, bounds=(x1_bnds, x2_bnds), method='simplex')
+# print(res)
+
+
 
 #delete dominated rows and columns
 changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
