@@ -3,10 +3,9 @@ import numpy as numpy
 arrayRowsInfo = []
 arrayColumnsInfo = []
 matrix = numpy.loadtxt('wariant1.txt')
-optimizedMatrix = []
-print (matrix)
-
-
+optimizedMatrix = matrix
+print("Wczytana macierz:")
+print(matrix)
 class MinmaxInfo:
     gameValue = 0
     rowNumber = 0
@@ -60,27 +59,63 @@ def checkPunktSiodlowy(rowsInfo, columnsInfo):
     if rowsInfo[0] == columnsInfo[0]:
         print("Wartość puntku siodlowego wynosi %d" % rowsInfo[0])
         if rowsInfo[1] == columnsInfo[1] and rowsInfo[2] == columnsInfo[2]:
-            print("Wyrane strategie to %d dla wierszy i %d dla kolumn" % (rowsInfo[1], rowsInfo[2]))
+            print("Wybrane strategie to %d dla wierszy i %d dla kolumn" % (rowsInfo[1], rowsInfo[2]))
         return True
     return False
 
 #function that search for recessive columns and rows
 def findDominatedRowsAndColumns(matrix):
-    rowOrColumnDeleted = False
-    #check for column domination
-    columnsNumber = matrix.shape[1]
+    optimizedMatrix = findDominatedRows(matrix)
+    
+    if type(optimizedMatrix) is numpy.ndarray:
+        return optimizedMatrix
+    else:
+        return findDominatedColumns(matrix)
+    return None
+
+#check for rows domination
+def findDominatedRows(matrix):
+    rowsNumber = matrix.shape[0]
     tempArray = []
-    for i in range(columnsNumber-2):
+    for i in range(rowsNumber-2):
         tempArray = matrix[i,:]
-        for j in range(i+1, columnsNumber-1):
-            print(compareTwoVectors(tempArray, matrix[j,:]))
-            #TODO IF RETURNED 1 OR 2 DELETE CORRESPONDING ROW
+        for j in range(i+1, rowsNumber-1):
+            option = compareTwoVectors(tempArray, matrix[j,:])
+            if option == 1:
+                optimizedMatrix = numpy.delete(matrix, i, axis=0)
+                print("Usunieto wiersz %d zdominowany przez wiersz %d" % (i+1, j+1))
+                return optimizedMatrix
+            elif option == 2:
+                optimizedMatrix = numpy.delete(matrix, j, axis=0)
+                print("Usunieto wiersz %d zdominowany przez wiersz %d" % (j+1, i+1))
+                return optimizedMatrix
+    return None
+
+#check for columns domination
+def findDominatedColumns(matrix):
+    columnNumber = matrix.shape[1]
+    tempArray = []
+    for i in range(columnNumber-2):
+        tempArray = matrix[:, i]
+        for j in range(i+1, columnNumber-1):
+            option = compareTwoVectors(tempArray, matrix[:,j])
+            if option == 1:
+                optimizedMatrix = numpy.delete(matrix, j, axis=1)
+                print("Usunieto kolumne %d zdominowana przez kolumne %d" % (j+1, i+1))
+                return optimizedMatrix
+            if option == 2:
+                optimizedMatrix = numpy.delete(matrix, i, axis=1)
+                print("Usunieto kolumne %d zdominowana przez kolumne %d" % (i+1, j+1))
+                return optimizedMatrix
+    return None
+   
+
 # return 0 if none of vectors is entirely smaller, return 1 if first is smaller, return 2 if second is smaller
 def compareTwoVectors(array1, array2):
-    print("Comparing...")
-    print(array1)
-    print(array2)
-    print("--------------")
+    #print("Comparing...")
+    #print(array1)
+    #print(array2)
+    #print("--------------")
     arraySize = array1.size
     numberOfSmallerOrEqualElementsInArray1 = 0
     numberOfSmallerOrEqualElementsInArray2 = 0
@@ -95,9 +130,19 @@ def compareTwoVectors(array1, array2):
         return 2
     else:
         return 0
-findDominatedRowsAndColumns(matrix)
 
-
+#delete dominated rows and columns
+changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
+if type(changedMatrix) is numpy.ndarray:
+    optimizedMatrix = changedMatrix
+else:
+    print("Brak zdominowanych wierszy badz kolumn")
+while(type(changedMatrix) is numpy.ndarray):
+    changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
+    if type(changedMatrix) is numpy.ndarray:
+        optimizedMatrix = changedMatrix
+print("Macierz po optymalizacji")
+print(optimizedMatrix)
 #minMaxForRows()
 #maxMinForColumns()
 #if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
