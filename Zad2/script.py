@@ -4,33 +4,8 @@ from scipy.optimize import linprog
 arrayRowsInfo = []
 arrayColumnsInfo = []
 matrix = numpy.loadtxt('wariant1.txt')
-
-def main():
-    #show matrix
-    print("Wczytana macierz:")
-    print(matrix)
-    optimizedMatrix = matrix
-
-    #delete dominated rows and columns
-    changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
-    if type(changedMatrix) is numpy.ndarray:
-        optimizedMatrix = changedMatrix
-    else:
-        print("Brak zdominowanych wierszy badz kolumn")
-    while(type(changedMatrix) is numpy.ndarray):
-        changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
-        if type(changedMatrix) is numpy.ndarray:
-            optimizedMatrix = changedMatrix
-    print("Macierz po optymalizacji")
-    print(optimizedMatrix)
-
-    #find solution
-    if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
-        print("Koniec")
-    else:
-        print("Brak punktu siodłowego. Aby znaleźć rozwiązanie należey skorzystać z programowania liniowego.")
-        simplexX(numpy.transpose(matrix))
-        simplexY(matrix)
+print(matrix)
+optimizedMatrix = matrix
 
 def minMaxForRows():
     row_min = []
@@ -148,6 +123,21 @@ def compareTwoVectors(array1, array2):
     else:
         return 0
 
+def checkForDominatedXY(optimizedMatrix):
+    #delete dominated rows and columns
+    changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
+    if type(changedMatrix) is numpy.ndarray:
+        optimizedMatrix = changedMatrix
+    else:
+        print("Brak zdominowanych wierszy badz kolumn")
+    while(type(changedMatrix) is numpy.ndarray):
+        changedMatrix = findDominatedRowsAndColumns(optimizedMatrix)
+        if type(changedMatrix) is numpy.ndarray:
+            optimizedMatrix = changedMatrix
+    print("Macierz po optymalizacji")
+    print(optimizedMatrix)
+    return optimizedMatrix
+
 def simplexX(temp_matrix):
     c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku wspolczynniki c to same
     A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
@@ -170,7 +160,13 @@ def simplexY(temp_matrix):
     y = []
     for val in result.x.tolist():
         y.append(v * val) #obliczamy wartosci y1, y2 itp mnozac y1', y2' itp przez v (wygrana)
-    print('======= Gracz B ======= \nWektor Y: ' + str(y) + ', wygrana: ' + str(v)) 
+    print('======= Gracz B ======= \nWektor Y: ' + str(y) + ', wygrana: ' + str(v))
 
-if __name__ == '__main__':
-  main()
+if(checkPunktSiodlowy(minMaxForRows(), maxMinForColumns())):
+    quit()
+else:
+    print("Brak punktu siodłowego. Aby znaleźć rozwiązanie należey skorzystać z programowania liniowego.")
+
+checkForDominatedXY(optimizedMatrix)
+simplexX(numpy.transpose(matrix))
+simplexY(matrix)
