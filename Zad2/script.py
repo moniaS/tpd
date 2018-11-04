@@ -147,38 +147,37 @@ print("Macierz po optymalizacji")
 print(optimizedMatrix)
 
 def simplexX(temp_matrix):
-    c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku to same 1
+    c = numpy.ones(len(temp_matrix[0]), dtype= int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku wspolczynniki c to same
     # print(c)
     A = [x * -1 for x in temp_matrix] #mnozymy macierz przez -1 aby zmienić znak na >=
     # print(A)
     b = numpy.full((len(temp_matrix)), -1, dtype=int) #po prawej stronie nierownosci mamy -1 bo podzielilismy przez v i zmienilismy znak
     # print(b)
     bounds = (0, None) #przyjmujemy, ze x1, x2 itp musi byc wieksze rowne 0
-    res = linprog(c, A, b, bounds=bounds, method='simplex')
-    # print(res) #w rezultacie otrzymujemy tablice wynikow x', ktora w naszym przypadku to wspolczynniki x1', x2' itp
-    v = 1 / sum(res.x) #obliczamy wygrana v
+    result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow x', ktora w naszym przypadku to wartosci x1', x2' itp
+    # print(res) 
+    v = 1 / sum(result.x) #obliczamy wygrana v
     print(v)
     x = []
-    for val in res.x.tolist():
-        x.append(v * val) #obliczamy wartosci wspolczynnikow x1, x2 itp
+    for val in result.x.tolist():
+        x.append(v * val) #obliczamy wartosci x1, x2 itp mnozac x1', x2' itp przez v (wygrana)
     print(x) 
 
 def simplexY(temp_matrix):
-    c = numpy.full((len(temp_matrix[0])), -1, dtype=int) #c = c1 * x1 + c2 * x2 itd, w naszym przypadku to same -1
+    c = numpy.full((len(temp_matrix[0])), -1, dtype=int) #c = c1 * y1 + c2 * y2 itd, w naszym przypadku wspolczynniki c to same -1
     # print(c)
     A = temp_matrix
     # print(A)
     b = numpy.full((len(temp_matrix)), 1, dtype=int) #po prawej stronie nierownosci mamy 1 bo podzielilismy przez v
     # print(b)
     bounds = (0, None) #przyjmujemy, ze y1, y2 itp musi byc wieksze rowne 0
-    res = linprog(c, A, b, bounds=bounds, method='simplex')
-    # print(res)
-    # print(res) #w rezultacie otrzymujemy tablice wynikow y', ktora w naszym przypadku to wspolczynniki x1', x2' itp
-    v = 1 / sum(res.x) #obliczamy wygrana v
+    result = linprog(c, A, b, bounds=bounds, method='simplex') #w rezultacie otrzymujemy tablice wynikow y', ktora w naszym przypadku to wartosci y1', y2' itp
+    # print(result) 
+    v = 1 / sum(result.x) #obliczamy wygrana v
     print(v)
     y = []
-    for val in res.x.tolist():
-        y.append(v * val) #obliczamy wartosci wspolczynnikow y1, y2 itp
+    for val in result.x.tolist():
+        y.append(v * val) #obliczamy wartosci y1, y2 itp mnozac y1', y2' itp przez v (wygrana)
     print(y) 
 
 simplexX(numpy.transpose(matrix))
