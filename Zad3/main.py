@@ -84,7 +84,7 @@ def shortestPath(v, path):
         shortestPath(v.previous, path)
     return
 
-
+#złożoność to chyba O(E\log V) gdzie E - liczba krawędzi grafu a V liczba wierzchołkow, ale nie jestem pewna
 def dijkstra(aGraph, start):
     print ('\n------- ALGORYTM DIJKSTRA --------\n')
 
@@ -92,6 +92,7 @@ def dijkstra(aGraph, start):
     start.set_distance(0)
 
     #tworzymy tuple z parami dystans-wierzchołek z pozostalych wierzcholkow (pozostale wierzcholki w pierwszej iteracji maja przypisana duza odleglosc)
+    #v in aGraph to iteracja po wszystkich krawędziach grafu - taki zapis możliwy dzięki definicji funkcji __iter__ w klasie Graph
     unvisited_queue = [(v.get_distance(),v) for v in aGraph]
 
     # wrzucamy ją do kolejki priorytetowej
@@ -99,8 +100,9 @@ def dijkstra(aGraph, start):
 
     #dopóki kolejka nie jest pusta
     while len(unvisited_queue):
-        # pobieramy pierwszy wierzchołek w kolejce - wierzchołek najbliższy źródła który nie został jeszcze rozważony
+        # pobieramy pierwszy element w kolejce - wierzchołek najbliższy źródła który nie został jeszcze rozważony
         uv = heapq.heappop(unvisited_queue)
+        #wyciągamy obiekt wierzchołka z tupli
         current = uv[1]
         current.set_visited()
 
@@ -123,8 +125,7 @@ def dijkstra(aGraph, start):
                 print ('Nie połączono: bieżący wierzchołek = %s następny wierzchołek = %s nowa odległość = %s' \
                         %(current.get_id(), next.get_id(), next.get_distance()))
 
-        # Przebudowa kolejki - nie potrzebujemy sprawdzać ponownie odwiedzonych wierzchołków
-        # Sortując ponownie kolejkę upewniamy się że następny element ma już nadaną wagę - jest sąsiedem innego odwiedzonego wierzchołka
+        # tworząc i sortując ponownie kolejkę upewniamy się że następny pobrany element ma już nadaną wagę - jest sąsiedem innego odwiedzonego wierzchołka
         while len(unvisited_queue):
             heapq.heappop(unvisited_queue)
         unvisited_queue = [(v.get_distance(),v) for v in aGraph if not v.visited]
@@ -139,11 +140,11 @@ graph = Graph()
 for i, row in enumerate(matrix):
     if i not in graph.get_vertices():
         graph.add_vertex(i)
-        #print("dodaje wierzcholek %d" % i)
+        print("dodaje wierzcholek %d" % i)
     for j in range(0, matrix.shape[1]):
         if i == 0 and j != 0:
             graph.add_vertex(j)
-            #print("dodaje wierzcholek %d" % j)
+            print("dodaje wierzcholek %d" % j)
         if matrix[i][j] >= 0:
             graph.add_edge(i, j, matrix[i][j])
 
