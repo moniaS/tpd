@@ -1,17 +1,16 @@
 import heapq
-import cmd
-import sys
+import random
 
 class Process:
-    def __init__(self, name, time):
-        self.name = name
+    def __init__(self, id, time):
+        self.id = id
         self.time = int(time)
     
     def get_time(self):
         return self.time
 
-    def get_name(self):
-        return self.name
+    def get_id(self):
+        return self.id
 
     def __lt__(self, other):
         return self.time < other.time
@@ -36,25 +35,28 @@ class Machine:
         return self.total_processing_time < other.total_processing_time
 
     def __str__(self):
-        return 'Procesor ' + str(self.id) + ', procesy :' + str([p.time for p in self.process_list])
+        return 'Procesor ' + str(self.id) + ', czas trwania procesów :' + str([p.time for p in self.process_list]) + ', całkowity czas wykonywania: ' + str(self.total_processing_time)
 
 def read_processes():
     list_of_all_processes = []
-    file = open("data.txt", "r")
-    for line in file:
-        line2 = line.split()
-        process = Process(line2[0], line2[1])
-        list_of_all_processes.append(process)
+    #file = open("data.txt", "r")
+    #for line in file:
+    #    line2 = line.split()
+    #    process = Process(line2[0], line2[1])
+    #    list_of_all_processes.append(process)
+    number_of_processes = input("Podaj liczbę zadań: ")
+    for i in range(1, int(number_of_processes) + 1):
+        list_of_all_processes.append(Process(i, random.randint(1,101)))
 
     print("\nWczytane procesy:")
     for process in list_of_all_processes:
-        print("Nazwa: " + process.get_name() + ", czas wykonywania: " + str(process.get_time()))
+        print("Id zadania: " + str(process.get_id()) + ", czas wykonywania: " + str(process.get_time()))
     return list_of_all_processes
 
 def create_processors():
-    number_of_processors = input("Podaj liczbę procesorów: ")
+    number_of_processors = input("\nPodaj liczbę procesorów: ")
     list_of_processors = []
-    for i in range(1, int(number_of_processors)+1):
+    for i in range(1, int(number_of_processors) + 1):
         machine = Machine(i)
         list_of_processors.append(machine)
     return list_of_processors
@@ -77,5 +79,6 @@ while len(processes_queue):
     machine[1].add_process(process[1])
     machine_queue.append(machine)
 
+print("\nPrzydział zadań:")
 for m in list_of_processors:
     print(m)
